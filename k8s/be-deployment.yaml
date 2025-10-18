@@ -1,0 +1,53 @@
+# --- Service for Backend ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pmm-be-service
+  namespace: pmm-app
+spec:
+  type: NodePort
+  ports:
+    - port: 8080
+  selector:
+    app: pmm-be
+
+---
+# --- Deployment for Backend ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pmm-be-deployment
+  namespace: pmm-app
+spec:
+  replicas: 1 # Add pod
+  selector:
+    matchLabels:
+      app: pmm-be
+  template:
+    metadata:
+      labels:
+        app: pmm-be
+    spec:
+      containers:
+        - name: pmm-be
+          image: chitipatpangma/pmm_be:latest # Docker hub be name
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SERVER_PORT
+              value: "8080"
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:postgresql://pmm-db-service:5432/pmm" # Service in DB
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: pmm-db-secret
+                  key: POSTGRES_USER # Secret
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: pmm-db-secret
+                  key: POSTGRES_PASSWORD # Secret
+          envFrom:
+            - configMapRef:
+                name: pmm-be-config 

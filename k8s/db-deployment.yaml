@@ -1,0 +1,52 @@
+# --- Service for Database ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pmm-db-service
+  namespace: pmm-app
+spec:
+  ports:
+    - port: 5432
+  selector:
+    app: pmm-db
+
+---
+# --- StatefulSet for Database ---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: pmm-db-statefulset
+  namespace: pmm-app
+spec:
+  serviceName: "pmm-db-service"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pmm-db
+  template:
+    metadata:
+      labels:
+        app: pmm-db
+    spec:
+      containers:
+        - name: pmm-db
+          image: chitipatpangma/pmm_db_seeded:latest # Docker hub db name
+          ports:
+            - containerPort: 5432
+          envFrom:
+            - secretRef:
+                name: pmm-db-secret # ดึงค่า Secret ทั้งหมดมาใช้เป็น Env
+          env: 
+            - name: PGDATA # Tell postgres where folder is
+              value: /var/lib/postgresql/data/pgdata 
+          volumeMounts:
+            - name: pmm-db-storage
+              mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: pmm-db-storage
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi # Size

@@ -1,0 +1,38 @@
+# --- Service for Frontend ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pmm-fe-service
+  namespace: pmm-app
+spec:
+  type: NodePort
+  ports:
+    - port: 3000
+  selector:
+    app: pmm-fe
+
+---
+# --- Deployment for Frontend ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pmm-fe-deployment
+  namespace: pmm-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pmm-fe
+  template:
+    metadata:
+      labels:
+        app: pmm-fe
+    spec:
+      containers:
+        - name: pmm-fe
+          image: chitipatpangma/pmm_fe:latest # Docker hub fe name
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NEXT_PUBLIC_API_URL
+              value: "/" # Path
