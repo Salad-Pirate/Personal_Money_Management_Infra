@@ -21,8 +21,8 @@ jobs:
       - name: Set up GKE cluster connection
         uses: google-github-actions/get-gke-credentials@v2
         with:
-          cluster_name: pmm-cluster    # <-- เปลี่ยนเป็นชื่อ Cluster ของคุณ
-          location: asia-southeast1   # <-- เปลี่ยนเป็น Region ของคุณ
+          cluster_name: pmm-cluster    
+          location: asia-south1 
           project_id: ${{ secrets.GCP_PROJECT_ID }}
 
       - name: Deploy to GKE
